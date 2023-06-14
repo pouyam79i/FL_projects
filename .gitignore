@@ -1,2 +1,6 @@
 # Ignore docs
 *.docx
+
+# Ignore ide settings and other caches
+__pycache__
+.vscode
