@@ -1,5 +1,8 @@
 # Ignore docs
 *.docx
+*.pdf
+*.zip
+*.rar
 
 # Ignore ide settings and other caches
 __pycache__
