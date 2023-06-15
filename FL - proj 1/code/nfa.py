@@ -1,5 +1,4 @@
 import itertools
-import json
 from automata import Automata
 from dfa import DFA
 
@@ -116,8 +115,7 @@ class NFAtoDFA:
         print("DFA result - not simplified:")        
         print(finalDFA)
         # see results in json file
-        with open('out/dfa_res.json', "w+") as outfile: 
-            json.dump(finalDFA, outfile, indent=2)
+        
         return finalDFA
 
 # this is an NFA machine
@@ -141,7 +139,65 @@ class NFA(Automata):
             return self.DFA
         transformer = NFAtoDFA()
         dfa_trans_res = transformer.TransformNFAtoDFA(self)
-        # TODO: update DFA obj with given result and return it
+
+        alphabet = dfa_trans_res['alphabet']
+        states = {}
+        rules = []
+        counter = 0
+        for item in dfa_trans_res['states']:
+            s = 'Q' + str(counter)
+            states[s] = item
+            counter += 1
+        for item in dfa_trans_res['transition_matrix']:
+            start_s = set(item[0])
+            movement = item[1]
+            end_s = set(item[2])
+            for eqv_s in states:
+                if set(states[eqv_s]) == start_s:
+                    start_s = eqv_s
+                    break
+            for eqv_s in states:
+                if set(states[eqv_s]) == end_s:
+                    end_s = eqv_s
+                    break
+            rules.append(start_s + ' ' + movement + ' ' + end_s)
+            
+        start_states = []
+        for item in dfa_trans_res['start_states']:
+            for eqv_s in states:
+                if set(states[eqv_s]) == set(item):
+                    start_states.append(eqv_s)
+                    break
+                
+        end_states = []
+        for item in dfa_trans_res['terminate_states']:
+            for eqv_s in states:
+                if set(states[eqv_s]) == set(item):
+                    end_states.append(eqv_s)
+                    break
+                
+        string_out = ''
+        for item in alphabet:
+            string_out += item + ' '
+        string_out += '\n'
+        for item in states.keys():
+            string_out += item + ' '
+        string_out += '\n'
+        for item in start_states:
+            string_out += item + ' '
+        string_out += '\n'
+        for item in end_states:
+            string_out += item + ' '
+        string_out += '\n'
+        for item in rules:
+            string_out += item + '\n'
+            
+        print(string_out)
+        
+        with open('out/dfa_res.text', "w+", encoding='UTF-8') as outfile: 
+            outfile.write(string_out.strip())
+            outfile.close()
+        
         return self.DFA       
               
 # Run app main

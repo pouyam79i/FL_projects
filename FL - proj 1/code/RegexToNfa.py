@@ -7,13 +7,13 @@ class REtoNFA:
     def __init__(self) -> None:
         pass
 
-    def objectNFA(self, s,l,tm,ss,fs):
+    def objectNFA(self, s,a,tm,ss,fs):
         return {
             'states': s,
-            'letters': l,
+            'alphabet': a,
             'transition_matrix': tm,
             'start_states': ss,
-            'final_states':fs
+            'terminate_state':fs
         }
 
     def unitLenRegexToNFA(self, alphabet):
@@ -28,10 +28,10 @@ class REtoNFA:
 
     def concatenationNFA(self, NFA1, NFA2):
         # Making `a` array
-        a = [ alphabet for alphabet in NFA1['letters']]
-        for l in NFA2['letters']:
-            if l not in a:
-                a.append(l)
+        a = [ alphabet for alphabet in NFA1['alphabet']]
+        for a in NFA2['alphabet']:
+            if a not in a:
+                a.append(a)
 
         # Making `s, ss and fs` array
         s = []
@@ -48,11 +48,11 @@ class REtoNFA:
             current_state = NFA2['states'][i]
             effective_state = "Q"+str(i+len(NFA1['states']))
             s.append(effective_state)
-            if current_state in NFA2['final_states']:
+            if current_state in NFA2['terminate_state']:
                 fs.append(effective_state)
             
             if current_state in NFA2['start_states']:
-                for nfa1_final_state in NFA1['final_states']:
+                for nfa1_final_state in NFA1['terminate_state']:
                     tm.append([nfa1_final_state,'λ',effective_state])
 
         # Making `tm` array
@@ -69,10 +69,10 @@ class REtoNFA:
 
     def unionNFA(self, NFA1, NFA2):
         # Making `a` array
-        a = [ alphabet for alphabet in NFA1['letters']]
-        for l in NFA2['letters']:
-            if l not in a:
-                a.append(l)
+        a = [ alphabet for alphabet in NFA1['alphabet']]
+        for a in NFA2['alphabet']:
+            if a not in a:
+                a.append(a)
 
         # Making `s, ss and fs` array
         s = ["Q0"]
@@ -86,7 +86,7 @@ class REtoNFA:
             effective_state = 'Q'+str(i+1)
             s.append(effective_state)
 
-            if current_state in NFA1['final_states']:
+            if current_state in NFA1['terminate_state']:
                 fs.append(effective_state)
             if current_state in NFA1['start_states']:
                 tm.append(['Q0','λ',effective_state])
@@ -98,7 +98,7 @@ class REtoNFA:
             effective_state = "Q"+str(i+1+len(NFA1['states']))
             s.append(effective_state)
 
-            if current_state in NFA2['final_states']:
+            if current_state in NFA2['terminate_state']:
                 fs.append(effective_state)
             if current_state in NFA2['start_states']:
                 tm.append(['Q0','λ',effective_state])
@@ -128,7 +128,7 @@ class REtoNFA:
         only_final_state = 'Q'+str(index)
         s.append(only_final_state)
 
-        l = [ letter for letter in NFA['letters'] ]
+        a = [ letter for letter in NFA['alphabet'] ]
         ss = ['Q0']
         fs = [only_final_state]
 
@@ -143,12 +143,12 @@ class REtoNFA:
             tm.append(['Q0','λ','Q'+ str(1+int(st_state[1:]))])
         tm.append(['Q0','λ',only_final_state])
 
-        for fn_state in NFA['final_states']:
+        for fn_state in NFA['terminate_state']:
             tm.append(['Q'+ str(1+int(fn_state[1:])),'λ',only_final_state])
             for st_state in NFA['start_states']:
                 tm.append(['Q'+ str(1+int(fn_state[1:])),'λ','Q'+ str(1+int(st_state[1:]))])
         
-        return self.objectNFA(s, l, tm, ss, fs)
+        return self.objectNFA(s, a, tm, ss, fs)
 
     def isAlphabet(self, character):
         flag = False
@@ -228,7 +228,6 @@ class REtoNFA:
         regular_expression = self.infixToPostfix(regular_expression)
         return self.makeNFA(regular_expression)
 
-
 # TODO: add a adder class
 class RE:
     def __init__(self) -> None:
@@ -242,18 +241,69 @@ class RE:
 
 # Run app main
 if __name__=='__main__':
-    if len(sys.argv) != 3:
-        print("Unexceptable Format!")
-        quit()
 
-    try:
-        input_file = open(sys.argv[1])
-        regular_expression = json.load(input_file)['regex']
-    except:
-        print("Error accessing `input_file`")
-        quit()
+    with open('../RE_Input_3.txt', encoding='UTF-8') as file:
+        lines = [line.rstrip() for line in file]
+        regex = lines[1].strip()
+        
+        transformer = REtoNFA()
     
-    finalNFA = convertToNFA(regular_expression)
+        finalNFA = transformer.convertToNFA(regex)
+        print(finalNFA)
 
-    with open(sys.argv[2], "w+") as outfile: 
-        json.dump(finalNFA, outfile, indent=4)
+        alphabet = set()
+        for item in finalNFA['alphabet']:
+            alphabet.add(item)
+        states = {}
+        rules = []
+        counter = 0
+        for item in finalNFA['states']:
+            s = 'Q' + str(counter)
+            states[s] = item
+            counter += 1
+        for item in finalNFA['transition_matrix']:
+            start_s = set(item[0])
+            movement = item[1]
+            if movement != 'λ':
+                alphabet.add(movement)
+            end_s = set(item[2])
+            for eqv_s in states:
+                if set(states[eqv_s]) == start_s:
+                    start_s = eqv_s
+                    break
+            for eqv_s in states:
+                if set(states[eqv_s]) == end_s:
+                    end_s = eqv_s
+                    break
+            rules.append(start_s + ' ' + movement + ' ' + end_s)
+            
+        start_states = []
+        for item in finalNFA['start_states']:
+            start_states.append(item)
+                
+        end_states = []
+        for item in finalNFA['terminate_state']:
+            end_states.append(item)
+                
+        string_out = ''
+        for item in alphabet:
+            string_out += item + ' '
+        string_out += '\n'
+        for item in states.keys():
+            string_out += item + ' '
+        string_out += '\n'
+        for item in start_states:
+            string_out += item + ' '
+        string_out += '\n'
+        for item in end_states:
+            string_out += item + ' '
+        string_out += '\n'
+        for item in rules:
+            string_out += item + '\n'
+            
+        print(string_out)
+        
+        with open('out/nfa_res.text', "w+", encoding='UTF-8') as outfile: 
+            outfile.write(string_out.strip())
+            outfile.close()
+        
