@@ -17,7 +17,7 @@ class Automata:
     def buildMachine(self, configAddr: str) -> None:
         # read filles
         try:
-            with open(configAddr) as file:
+            with open(configAddr, encoding='UTF-8') as file:
                 lines = [line.rstrip() for line in file]
                 self.configFile = configAddr
                 self.alphabet = lines[0].split(' ')
