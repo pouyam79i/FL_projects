@@ -1,9 +1,3 @@
-# Coded by Pouya Mohammadi
-# Here we have a simple DFA builder
-# 1- It Reads NFA config
-# 2- builds NFA according to that config
-# 3- now we can use this NFA!
-
 import itertools
 import json
 from automata import Automata
@@ -33,7 +27,7 @@ class NFAtoDFA:
         self.nfaEpsilonClosureDict[nfaState] = [nfaState]
         for arc in nfaTransitionMatrix:
             [ss, a, fs] = arc
-            if (a != '$') or (ss != nfaState):
+            if (a != 'λ') or (ss != nfaState):
                 continue
             children = self.computeNfaEpsilonClosureDict(fs,nfaTransitionMatrix)
             for child in children:

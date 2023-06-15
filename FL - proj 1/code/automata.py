@@ -1,6 +1,3 @@
-# Coded by Pouya Mohammadi
-# here we have a base for our machines
-
 class Automata:
     
     def __init__(self) -> None:

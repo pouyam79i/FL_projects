@@ -1,9 +1,3 @@
-# Coded by Pouya Mohammadi
-# Here we have a simple DFA builder
-# 1- It Reads DFA config
-# 2- builds DFA according to that config
-# 3- now we can use this DFA!
-
 from automata import Automata
 
 # this is a simple DFA machine
