@@ -5,6 +5,7 @@
 # 3- now we can use this NFA!
 
 import itertools
+import json
 from automata import Automata
 from dfa import DFA
 
@@ -120,10 +121,10 @@ class NFAtoDFA:
         finalDFA = self.convertNFAToDFA(given_nfa)
         print("DFA result - not simplified:")        
         print(finalDFA)
+        # see results in json file
+        with open('out/dfa_res.json', "w+") as outfile: 
+            json.dump(finalDFA, outfile, indent=2)
         return finalDFA
-
-
-# ****************** end
 
 # this is an NFA machine
 class NFA(Automata):
