@@ -4,3 +4,6 @@
 # Ignore ide settings and other caches
 __pycache__
 .vscode
+
+# Ignore test files
+test
