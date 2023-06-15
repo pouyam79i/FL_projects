@@ -28,7 +28,9 @@ class Automata:
                     startState, passingStr, nextState = rule.split(' ')
                     if startState not in self.rules.keys():
                         self.rules[startState] = {}
-                    self.rules[startState][passingStr] = nextState
+                    if passingStr not in self.rules[startState].keys():
+                        self.rules[startState][passingStr] = []
+                    self.rules[startState][passingStr].append(nextState)
                 self.ready = True
                 print('your machine is ready!')
                 print('Alphabet:')

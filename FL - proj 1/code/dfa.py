@@ -30,7 +30,7 @@ class DFA(Automata):
                 print('{} is not in allowed alphabet')
                 return False
             if c in self.rules[prevState].keys():
-                nextState = self.rules[prevState][c]
+                nextState = self.rules[prevState][c][0]
                 tracker.append(prevState + ' - {} -> '.format(c) + nextState)
                 prevState = nextState
             else:
