@@ -16,7 +16,11 @@ class TuringMachine:
         if len(data) == 0:
             print('null input')
             return ''
-        tape = '_' + data + '_'
+        tape = data
+        if tape[0] != '_':
+            tape = '_' + tape
+        if tape[len(tape)-1] != '_':
+            tape = tape + '_'
         print("data in: {} and taped to: ".format(data), end= '')
         print(tape)
         position = 0
